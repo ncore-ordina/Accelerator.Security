@@ -31,7 +31,7 @@ namespace Accelerator.Security.Web.Controllers
             return View(claims_httpcontext);
         }
 
-        [Authorize]
+        [Authorize("HomePage")]
         public IActionResult Privacy()
         {
             return View();

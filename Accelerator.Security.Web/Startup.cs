@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Accelerator.Security.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +18,8 @@ namespace Accelerator.Security.Web
 {
     public class Startup
     {
+        private AuthorizationPolicy defaultPolicy;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,12 +31,13 @@ namespace Accelerator.Security.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            services.AddAuthorization(options => {
+                options.AddPolicy("HomePage", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+                options.DefaultPolicy = defaultPolicy;
             });
 
-            services.AddTransient<IClaimsPrincipal, ClaimsPrincipal>();
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+
 
         }
 
